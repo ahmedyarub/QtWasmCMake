@@ -60,8 +60,12 @@ function(add_qt_wasm_app TARGET)
 
   # Allows amount of memory used to change
   # https://emscripten.org/docs/optimizing/Optimizing-Code.html#memory-growth
-  target_link_libraries(${TARGET} PUBLIC "-s ALLOW_MEMORY_GROWTH=1")
+  # target_link_libraries(${TARGET} PUBLIC "-s ALLOW_MEMORY_GROWTH=1")
   # target_link_libraries(${TARGET} PUBLIC "-s MAXIMUM_MEMORY=1GB") # required when combining USE_PTHREADS with ALLOW_MEMORY_GROWTH
+
+    target_link_libraries(${TARGET} PUBLIC "-Wl,--no-check-features")
+    target_link_libraries(${TARGET} PUBLIC "-s USE_PTHREADS=1")
+    target_link_libraries(${TARGET} PUBLIC "-s ERROR_ON_UNDEFINED_SYMBOLS=0")
 
   # Enable C++ exception catching
   # https://emscripten.org/docs/optimizing/Optimizing-Code.html#c-exceptions
@@ -84,6 +88,22 @@ function(add_qt_wasm_app TARGET)
     # todo : update to MAXIMUM_MEMORY=... when updating to emscripten 1.39.13
     target_link_libraries(${TARGET} PUBLIC "-s WASM_MEM_MAX=${ARGWASM_MAXIMUM_MEMORY}")
   endif()
+
+  target_link_libraries(${TARGET} PUBLIC "--emrun")
+
+  #    target_link_libraries(${TARGET} PUBLIC "-s PROXY_TO_PTHREAD=1")
+  target_link_libraries(${TARGET} PUBLIC "-s PTHREAD_POOL_SIZE=7")
+
+  #Debugging
+  #    target_link_libraries(${TARGET} PUBLIC "-s EXCEPTION_DEBUG=1")
+  #    target_link_libraries(${TARGET} PUBLIC "-s DEMANGLE_SUPPORT=1")
+  #    target_link_libraries(${TARGET} PUBLIC "-s LIBRARY_DEBUG=1")
+  #    target_link_libraries(${TARGET} PUBLIC "-s SYSCALL_DEBUG=1")
+  #    target_link_libraries(${TARGET} PUBLIC "-s FETCH_DEBUG=0")
+  #    target_link_libraries(${TARGET} PUBLIC "-s MINIFY_HTML=0")
+
+  target_link_libraries(${TARGET} PUBLIC "-g4")
+  target_link_libraries(${TARGET} PUBLIC "--source-map-base http://localhost:6391/")
 
   # Deploy default qt html/loader files
   if(NOT ARGWASM_DISABLE_DEPLOYMENT)
